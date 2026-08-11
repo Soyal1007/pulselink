@@ -1,0 +1,11 @@
+{
+  "name": "pulselink-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix pulselink run dev",
+    "build": "npm --prefix pulselink run build",
+    "start": "npm --prefix pulselink run start",
+    "lint": "npm --prefix pulselink run lint"
+  }
+}
