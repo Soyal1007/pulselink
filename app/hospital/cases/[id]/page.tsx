@@ -1,195 +1,209 @@
 'use client';
 import { useParams } from 'next/navigation';
-import {
-  Heart, Activity, MapPin, Clock, CheckCircle2,
-  AlertTriangle, User, Ambulance, Thermometer, Wind,
-  Brain, RefreshCw, ChevronLeft, ShieldAlert
-} from 'lucide-react';
 import Link from 'next/link';
+import { ChevronLeft, Heart, Activity, AlertTriangle, MapPin, Phone, Droplets, Pill, Stethoscope, Clock, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
-
-const DEMO_CASE = {
-  id: 'case-001',
-  case_ref: 'PL-20260811-CARDIAC01',
-  patient: { name: 'Rajan Mehta', age: 58, gender: 'Male', blood_group: 'O+', allergies: 'Penicillin', conditions: 'Hypertension, Type 2 Diabetes', medications: 'Metformin, Amlodipine' },
-  priority: 'CRITICAL',
-  symptoms: ['Chest pain', 'Shortness of breath', 'Diaphoresis'],
-  chief_complaint: 'Chest pain and shortness of breath — onset approx. 40 min ago',
-  vitals: { heart_rate: 94, systolic_bp: 148, diastolic_bp: 94, spo2: 94.5, resp_rate: 22, temperature: 37.2, consciousness: 'alert' },
-  ecg: { ai_result: 'RBBB + ST-T Changes', confidence: 87, risk: 'HIGH', patterns: ['Right Bundle Branch Block (RBBB)', 'ST-segment Depression'] },
-  ambulance: { id: 'KA-01-A-0001', paramedic: 'Arjun Kumar', eta: 8, distance: 6.4 },
-  status: 'hospital_notified',
-  events: [
-    { time: '10:21', label: 'Emergency case created', actor: 'Arjun Kumar (Paramedic)' },
-    { time: '10:22', label: 'Patient information recorded', actor: 'Arjun Kumar' },
-    { time: '10:23', label: 'Vitals recorded', actor: 'System' },
-    { time: '10:24', label: 'ECG uploaded and analyzed', actor: 'AI Service' },
-    { time: '10:25', label: 'Hospital notified', actor: 'Arjun Kumar' },
-  ],
-};
+import { useCaseStore } from '@/store/caseStore';
+import EcgWaveformCanvas from '@/components/EcgWaveformCanvas';
+import type { EcgConditionPattern } from '@/components/EcgWaveformCanvas';
 
 export default function CaseDetailPage() {
   const params = useParams();
-  const c = DEMO_CASE;
-  const [acknowledged, setAcknowledged] = useState(false);
-  const [prepared, setPrepared] = useState(false);
+  const caseId = params.id as string;
+  const { cases, acknowledgeCase, prepareCase } = useCaseStore();
+
+  const caseData = cases.find((c) => c.id === caseId);
+
+  if (!caseData) {
+    return (
+      <div className="w-full space-y-6">
+        <Link href="/hospital/cases" className="flex items-center gap-2 text-sm font-black text-slate-800 hover:text-blue-600 transition">
+          <ChevronLeft className="h-5 w-5" /> Back to Cases
+        </Link>
+        <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center text-base font-semibold text-slate-500">
+          Case not found. It may have been closed or is not yet available.
+        </div>
+      </div>
+    );
+  }
+
+  const { patient, vitals } = caseData;
 
   return (
     <div className="w-full space-y-6">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
+      <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <Link href="/hospital/cases" className="flex items-center gap-2 text-sm font-black text-slate-800 hover:text-blue-600 transition">
+          <ChevronLeft className="h-5 w-5" /> All Cases
+        </Link>
         <div className="flex items-center gap-3">
-          <Link href="/hospital/cases" className="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-700 hover:bg-slate-50 shadow-2xs">
-            <ChevronLeft className="h-5 w-5" />
-          </Link>
+          <span className={cn('rounded-full px-3 py-1 text-xs font-black border',
+            caseData.priority === 'CRITICAL' ? 'bg-red-100 text-red-700 border-red-300' :
+            caseData.priority === 'HIGH' ? 'bg-amber-100 text-amber-700 border-amber-300' :
+            caseData.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700 border-yellow-300' :
+            'bg-emerald-100 text-emerald-700 border-emerald-300'
+          )}>{caseData.priority} PRIORITY</span>
+          <span className="text-xs font-mono font-bold text-slate-500">{caseData.case_ref}</span>
+        </div>
+      </div>
+
+      {/* Patient Identity Banner */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex flex-wrap items-center justify-between gap-6">
+        <div className="flex items-center gap-5">
+          <div className="h-14 w-14 rounded-2xl bg-blue-600 flex items-center justify-center text-white text-xl font-black shadow-md">
+            {patient.name[0]}
+          </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight">{c.patient.name}</h1>
-              <span className="rounded-full bg-red-100 border border-red-200 px-3 py-0.5 text-xs font-black text-red-700">
-                {c.priority} PRIORITY
-              </span>
-            </div>
-            <p className="text-xs font-mono font-bold text-slate-500 mt-0.5">{c.case_ref}</p>
+            <h1 className="text-2xl font-black text-slate-900">{patient.name}</h1>
+            <p className="text-xs font-extrabold text-slate-600 mt-1">
+              {patient.age} y/o · {patient.gender} · Blood: <strong className="text-red-600">{patient.blood_group}</strong> · Phone: {patient.phone}
+            </p>
           </div>
         </div>
-
-        <div className="flex items-center gap-2">
-          {acknowledged && (
-            <span className="rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2 text-xs font-extrabold text-emerald-700">
-              ✓ TRIAGE ACKNOWLEDGED
-            </span>
-          )}
-          {prepared && (
-            <span className="rounded-xl bg-blue-50 border border-blue-200 px-3 py-2 text-xs font-extrabold text-blue-700">
-              ✓ BAY 4 READY
-            </span>
+        <div className="flex items-center gap-3">
+          <div className="rounded-xl bg-blue-50 border border-blue-200 px-6 py-3 text-center">
+            <p className="text-[10px] font-extrabold uppercase text-blue-600">ETA</p>
+            <p className="text-3xl font-black text-blue-700">{caseData.eta_min} <span className="text-xs text-blue-500">min</span></p>
+          </div>
+          {!caseData.acknowledged ? (
+            <button onClick={() => acknowledgeCase(caseData.id)}
+              className="rounded-xl bg-blue-600 px-5 py-3.5 text-sm font-black text-white hover:bg-blue-700 transition shadow-sm">
+              Acknowledge
+            </button>
+          ) : !caseData.preparing ? (
+            <button onClick={() => prepareCase(caseData.id)}
+              className="rounded-xl bg-emerald-600 px-5 py-3.5 text-sm font-black text-white hover:bg-emerald-700 transition shadow-sm">
+              Prepare Bay
+            </button>
+          ) : (
+            <span className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-3 text-sm font-black text-emerald-700">✓ ER Ready</span>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
-        {/* Left column (8 cols) */}
-        <div className="lg:col-span-8 space-y-6">
-          {/* Patient Details */}
-          <div className="pro-card p-6 space-y-4">
-            <h3 className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-slate-700">
-              <User className="h-4 w-4 text-blue-600" /> Patient Medical Profile
-            </h3>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
-              <div className="rounded-xl bg-slate-50 border border-slate-200 p-3">
-                <p className="font-bold text-slate-400 uppercase text-[10px]">Age & Gender</p>
-                <p className="font-black text-slate-900 text-sm mt-0.5">{c.patient.age} y/o ({c.patient.gender})</p>
-              </div>
-              <div className="rounded-xl bg-slate-50 border border-slate-200 p-3">
-                <p className="font-bold text-slate-400 uppercase text-[10px]">Blood Group</p>
-                <p className="font-black text-slate-900 text-sm mt-0.5">{c.patient.blood_group}</p>
-              </div>
-              <div className="rounded-xl bg-slate-50 border border-slate-200 p-3">
-                <p className="font-bold text-slate-400 uppercase text-[10px]">Known Allergies</p>
-                <p className="font-black text-red-600 text-sm mt-0.5">{c.patient.allergies}</p>
-              </div>
-              <div className="col-span-2 sm:col-span-3 rounded-xl bg-slate-50 border border-slate-200 p-3">
-                <p className="font-bold text-slate-400 uppercase text-[10px]">Pre-existing Conditions</p>
-                <p className="font-extrabold text-slate-900 text-xs mt-0.5">{c.patient.conditions}</p>
-              </div>
-            </div>
-
-            <div className="rounded-xl bg-blue-50/60 border border-blue-100 p-4 space-y-1.5">
-              <p className="text-[10px] font-extrabold uppercase tracking-wider text-blue-700">Chief Complaint & Symptoms</p>
-              <p className="text-sm font-black text-slate-900">{c.chief_complaint}</p>
-              <div className="flex flex-wrap gap-2 pt-2">
-                {c.symptoms.map(s => (
-                  <span key={s} className="rounded-full bg-blue-100 border border-blue-200 px-3 py-1 text-xs font-extrabold text-blue-800">
-                    {s}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Column: Clinical Info */}
+        <div className="lg:col-span-7 space-y-5">
           {/* Vitals Grid */}
-          <div className="pro-card p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-slate-700">
-                <Heart className="h-4 w-4 text-red-600" /> Pre-Hospital Telemetry Vitals
-              </h3>
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-extrabold text-slate-600">
-                LIVE SENSOR FEED
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-2xs space-y-3">
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-600 flex items-center gap-2">
+              <Heart className="h-4 w-4 text-red-600" /> Real-Time Vital Signs
+            </h3>
+            <div className="grid grid-cols-3 gap-4">
               {[
-                { label: 'Heart Rate', value: c.vitals.heart_rate, unit: 'bpm', color: 'text-red-600', warn: false },
-                { label: 'SpO2', value: c.vitals.spo2, unit: '%', color: 'text-blue-600', warn: false },
-                { label: 'Resp Rate', value: c.vitals.resp_rate, unit: '/min', color: 'text-slate-900', warn: false },
-                { label: 'Systolic BP', value: c.vitals.systolic_bp, unit: 'mmHg', color: 'text-red-600', warn: true },
-                { label: 'Diastolic BP', value: c.vitals.diastolic_bp, unit: 'mmHg', color: 'text-slate-900', warn: false },
-                { label: 'Temperature', value: `${c.vitals.temperature}°C`, unit: '', color: 'text-slate-900', warn: false },
-              ].map(({ label, value, unit, color, warn }) => (
-                <div key={label} className={cn('rounded-xl border p-4 text-center', warn ? 'border-red-300 bg-red-50/50' : 'border-slate-200 bg-slate-50')}>
-                  <p className="text-[10px] font-extrabold uppercase text-slate-400">{label}</p>
-                  <p className={cn('text-2xl font-black mt-1', color)}>{value} <span className="text-xs font-bold text-slate-500">{unit}</span></p>
-                  {warn && <p className="text-[10px] font-extrabold text-red-600 mt-1">⚠ Elevated</p>}
+                { label: 'Heart Rate', value: vitals.heart_rate, unit: 'bpm', danger: vitals.heart_rate > 110 || vitals.heart_rate < 50 },
+                { label: 'SpO2', value: vitals.spo2 + '%', unit: '', danger: vitals.spo2 < 94 },
+                { label: 'Blood Pressure', value: `${vitals.systolic_bp}/${vitals.diastolic_bp}`, unit: 'mmHg', danger: vitals.systolic_bp > 180 || vitals.systolic_bp < 90 },
+                { label: 'Respiratory Rate', value: vitals.resp_rate, unit: '/min', danger: vitals.resp_rate > 25 },
+                { label: 'Temperature', value: vitals.temperature + '°C', unit: '', danger: vitals.temperature > 38.5 },
+                { label: 'ECG Pattern', value: caseData.ecg_pattern, unit: '', danger: caseData.ecg_pattern !== 'NORM' },
+              ].map((v) => (
+                <div key={v.label} className={cn('rounded-xl border p-4 text-center', v.danger ? 'border-red-200 bg-red-50/50' : 'border-slate-200 bg-slate-50')}>
+                  <p className="text-[10px] font-extrabold uppercase text-slate-500">{v.label}</p>
+                  <p className={cn('text-xl font-black mt-1', v.danger ? 'text-red-600' : 'text-slate-900')}>
+                    {v.value} <span className="text-[10px] font-normal text-slate-400">{v.unit}</span>
+                  </p>
                 </div>
               ))}
             </div>
           </div>
+
+          {/* Chief Complaint & Symptoms */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-2xs space-y-3">
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-600 flex items-center gap-2">
+              <Stethoscope className="h-4 w-4 text-blue-600" /> Clinical Presentation
+            </h3>
+            <p className="text-base font-black text-slate-900">{patient.chief_complaint}</p>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {caseData.symptoms.map((s) => (
+                <span key={s} className="rounded-full bg-blue-100 border border-blue-200 px-3 py-1 text-xs font-bold text-blue-800">{s}</span>
+              ))}
+            </div>
+            {caseData.symptom_notes && (
+              <p className="text-xs font-semibold text-slate-600 pt-2 border-t border-slate-100">{caseData.symptom_notes}</p>
+            )}
+            <p className="text-xs font-bold text-slate-500">Onset: {caseData.symptom_onset}</p>
+          </div>
+
+          {/* Medical History */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-2xs space-y-4">
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-600 flex items-center gap-2">
+              <Pill className="h-4 w-4 text-purple-600" /> Patient Medical History
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div className="rounded-xl border border-red-200 bg-red-50/50 p-4">
+                <p className="font-extrabold text-red-700 mb-1">Drug Allergies</p>
+                <p className="font-bold text-red-900">{patient.allergies || 'None known'}</p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <p className="font-extrabold text-slate-600 mb-1">Current Medications</p>
+                <p className="font-bold text-slate-900">{patient.medications || 'None'}</p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <p className="font-extrabold text-slate-600 mb-1">Pre-Existing Conditions</p>
+                <p className="font-bold text-slate-900">{patient.conditions || 'None'}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Right column (4 cols) */}
-        <div className="lg:col-span-4 space-y-6">
-          {/* ETA Card */}
-          <div className="pro-card p-6 space-y-4 text-center">
-            <h3 className="flex items-center justify-center gap-2 text-xs font-extrabold uppercase tracking-wider text-slate-500">
-              <Ambulance className="h-4 w-4 text-blue-600" /> Inbound Transport Unit
+        {/* Right Column: ECG + Timeline */}
+        <div className="lg:col-span-5 space-y-5">
+          {/* ECG Waveform */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-2xs space-y-3">
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-600 flex items-center gap-2">
+              <Activity className="h-4 w-4 text-blue-600" /> Live ECG Rhythm Monitor
             </h3>
-            <div className="rounded-2xl bg-blue-600 p-5 text-white shadow-md">
-              <p className="text-4xl font-black">{c.ambulance.eta} <span className="text-lg font-bold">MIN</span></p>
-              <p className="text-xs font-extrabold uppercase tracking-wider text-blue-200 mt-1">{c.ambulance.distance} km away</p>
-            </div>
-            <div className="text-xs space-y-1 text-slate-600 font-semibold text-left border-t border-slate-100 pt-3">
-              <div className="flex justify-between">
-                <span>Vehicle:</span>
-                <span className="font-bold text-slate-900">{c.ambulance.id}</span>
+            <EcgWaveformCanvas
+              heartRate={vitals.heart_rate}
+              pattern={(caseData.ecg_pattern as EcgConditionPattern) || 'NORM'}
+              height={200}
+              interactive={true}
+            />
+            <p className="text-xs font-semibold text-slate-500 text-center">
+              Pattern: <strong className="text-slate-800">{caseData.ecg_pattern}</strong> · {vitals.heart_rate} bpm · Lead II 250Hz
+            </p>
+          </div>
+
+          {/* Ambulance Info */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-2xs space-y-3">
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-600 flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-emerald-600" /> Ambulance & Dispatch Info
+            </h3>
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div>
+                <p className="font-bold text-slate-500">Vehicle</p>
+                <p className="font-black text-slate-900">{caseData.ambulance_id}</p>
               </div>
-              <div className="flex justify-between">
-                <span>Paramedic:</span>
-                <span className="font-bold text-slate-900">{c.ambulance.paramedic}</span>
+              <div>
+                <p className="font-bold text-slate-500">Paramedic</p>
+                <p className="font-black text-slate-900">{caseData.paramedic}</p>
+              </div>
+              <div>
+                <p className="font-bold text-slate-500">Distance</p>
+                <p className="font-black text-slate-900">{caseData.distance_km} km</p>
+              </div>
+              <div>
+                <p className="font-bold text-slate-500">Status</p>
+                <p className="font-black text-blue-700">{caseData.status.replace(/_/g, ' ')}</p>
               </div>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="pro-card p-6 space-y-3">
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">ER Action Panel</h3>
-            <button
-              onClick={() => setAcknowledged(true)}
-              className="w-full rounded-xl bg-blue-600 py-3 text-xs font-extrabold text-white hover:bg-blue-700 shadow-sm transition"
-            >
-              ✓ Acknowledge Triage
-            </button>
-            <button
-              onClick={() => setPrepared(true)}
-              className="w-full rounded-xl bg-emerald-600 py-3 text-xs font-extrabold text-white hover:bg-emerald-700 shadow-sm transition"
-            >
-              ⚡ Prepare Trauma Bay 4
-            </button>
-          </div>
-
-          {/* Case Timeline */}
-          <div className="pro-card p-6 space-y-3">
-            <h3 className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-slate-500">
-              <Clock className="h-4 w-4 text-slate-600" /> Audit Timeline
+          {/* Event Timeline */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-2xs space-y-3">
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-600 flex items-center gap-2">
+              <Clock className="h-4 w-4 text-purple-600" /> Case Event Timeline
             </h3>
-            <div className="space-y-3 pt-2">
-              {c.events.map((ev, i) => (
-                <div key={i} className="flex items-start gap-3 text-xs border-l-2 border-blue-500 pl-3">
+            <div className="space-y-3">
+              {caseData.events.map((ev, i) => (
+                <div key={i} className="flex gap-3 text-xs items-start">
+                  <span className="font-mono font-bold text-slate-500 flex-shrink-0 w-12">{ev.time}</span>
+                  <div className="h-2 w-2 rounded-full bg-blue-600 flex-shrink-0 mt-1.5" />
                   <div>
-                    <p className="font-extrabold text-slate-900">{ev.label}</p>
-                    <p className="text-[10px] font-semibold text-slate-500">{ev.time} · {ev.actor}</p>
+                    <p className="font-bold text-slate-900">{ev.label}</p>
+                    <p className="text-slate-500">{ev.actor}</p>
                   </div>
                 </div>
               ))}
