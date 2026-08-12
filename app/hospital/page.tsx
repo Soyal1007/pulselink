@@ -4,36 +4,53 @@ import Link from 'next/link';
 import {
   Ambulance, Clock, Activity, AlertTriangle, TrendingUp,
   CheckCircle2, MapPin, Heart, ChevronRight, RefreshCw, BarChart3, ShieldAlert,
-  SlidersHorizontal, Download, Filter, Search, Building2, User, Info
+  SlidersHorizontal, Download, Filter, Search, Building2, User, Info, Check, X, Navigation
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useCaseStore } from '@/store/caseStore';
+import { useCaseStore, HOSPITALS } from '@/store/caseStore';
 import EcgWaveformCanvas from '@/components/EcgWaveformCanvas';
 import type { EcgConditionPattern } from '@/components/EcgWaveformCanvas';
 
 export default function HospitalOverview() {
-  const { cases, acknowledgeCase, prepareCase } = useCaseStore();
+  const { cases, hospitalRespondToCase, prepareCase } = useCaseStore();
+
+  // Simulate current hospital identity (e.g. City General Hospital or Apollo)
+  const [currentHospital, setCurrentHospital] = useState(HOSPITALS[0]);
   const [selectedCaseId, setSelectedCaseId] = useState<string>(cases[0]?.id || '');
+  const [bedTypeInput, setBedTypeInput] = useState('Emergency Red Zone Bay');
 
   const selectedCase = cases.find((c) => c.id === selectedCaseId) || cases[0];
   const criticalCount = cases.filter((c) => c.priority === 'CRITICAL').length;
-  const acknowledgedCount = cases.filter((c) => c.acknowledged).length;
 
   return (
     <div className="w-full space-y-8">
-      {/* Top Header */}
+      {/* Top Header & Hospital Identity Switcher */}
       <div className="flex flex-wrap items-center justify-between gap-6 border-b border-slate-200 pb-6 w-full">
         <div>
           <div className="flex items-center gap-3 mb-1">
             <h1 className="text-3xl font-black text-slate-900 tracking-tight">Emergency Command Triage Board</h1>
-            <span className="rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-xs font-extrabold text-blue-700">
-              City General Hospital · ER Bay 4
-            </span>
+            <div className="flex items-center gap-2 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-xs font-extrabold text-blue-700">
+              <Building2 className="h-4 w-4" />
+              <span>Viewing As:</span>
+              <select
+                value={currentHospital.id}
+                onChange={(e) => {
+                  const h = HOSPITALS.find((x) => x.id === e.target.value);
+                  if (h) setCurrentHospital(h);
+                }}
+                className="bg-transparent font-black underline cursor-pointer outline-none"
+              >
+                {HOSPITALS.map((h) => (
+                  <option key={h.id} value={h.id}>{h.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
           <p className="text-sm font-semibold text-slate-500">
-            Real-time pre-hospital telemetry and emergency preparation stream. <strong className="text-slate-700">{cases.length} active cases.</strong>
+            Interconnected Multi-Hospital Triage Network. <strong className="text-slate-900">{cases.length} active emergency broadcasts.</strong>
           </p>
         </div>
+
         <div className="flex items-center gap-3">
           <button className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-extrabold text-slate-700 hover:bg-slate-50 shadow-xs">
             <Filter className="h-4 w-4 text-slate-500" /> Filter Triage
@@ -44,68 +61,20 @@ export default function HospitalOverview() {
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 w-full">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-2xs">
-          <div className="flex items-center justify-between text-xs font-bold text-slate-500 mb-2">
-            <span className="uppercase tracking-wider">Active Incoming Units</span>
-            <Ambulance className="h-5 w-5 text-blue-600" />
-          </div>
-          <p className="text-4xl font-black text-slate-900">{cases.length} <span className="text-base font-bold text-slate-500">fleet units</span></p>
-          <p className="text-xs font-semibold text-emerald-600 mt-2 flex items-center gap-1">
-            <TrendingUp className="h-3.5 w-3.5" /> 100% Telemetry Active
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-red-200 bg-red-50/40 p-6 shadow-2xs">
-          <div className="flex items-center justify-between text-xs font-bold text-slate-500 mb-2">
-            <span className="uppercase tracking-wider">Critical Alerts</span>
-            <ShieldAlert className="h-5 w-5 text-red-600" />
-          </div>
-          <p className="text-4xl font-black text-red-600">{criticalCount} <span className="text-base font-bold text-red-400">critical</span></p>
-          <p className="text-xs font-semibold text-red-700 mt-2">Immediate intervention required</p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-2xs">
-          <div className="flex items-center justify-between text-xs font-bold text-slate-500 mb-2">
-            <span className="uppercase tracking-wider">ER Team Preparedness</span>
-            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-          </div>
-          <p className="text-4xl font-black text-slate-900">{acknowledgedCount} / {cases.length} <span className="text-base font-bold text-slate-500">ready</span></p>
-          <p className="text-xs font-semibold text-slate-500 mt-2">Teams On Standby</p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-2xs">
-          <div className="flex items-center justify-between text-xs font-bold text-slate-500 mb-2">
-            <span className="uppercase tracking-wider">Mean Pre-Hospital ETA</span>
-            <Clock className="h-5 w-5 text-purple-600" />
-          </div>
-          <p className="text-4xl font-black text-purple-700">
-            {cases.length > 0 ? (cases.reduce((sum, c) => sum + c.eta_min, 0) / cases.length).toFixed(0) : 0} <span className="text-base font-bold text-purple-400">min</span>
-          </p>
-          <p className="text-xs font-semibold text-purple-800 mt-2">
-            Pre-arrival clinical advantage
-          </p>
-        </div>
-      </div>
-
-      {/* Main Split: Triage Queue + Selected Case */}
+      {/* Main Split: Triage List + Selected Case */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 w-full">
         {/* Left: Triage List */}
         <div className="lg:col-span-7 space-y-4">
           <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-600">
-            Incoming Ambulance Patient Stream ({cases.length})
+            City-Wide Emergency Patient Stream ({cases.length})
           </h2>
-
-          {cases.length === 0 && (
-            <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center text-sm font-semibold text-slate-500">
-              No active emergency cases. Waiting for incoming telemetry from paramedic units.
-            </div>
-          )}
 
           <div className="space-y-4">
             {cases.map((c) => {
               const isSelected = selectedCase?.id === c.id;
+              const myResponse = c.hospital_responses?.find((r) => r.hospital_id === currentHospital.id);
+              const isAssignedToMe = c.assigned_hospital_id === currentHospital.id;
+
               return (
                 <div
                   key={c.id}
@@ -121,7 +90,6 @@ export default function HospitalOverview() {
                         <span className={cn('rounded-full px-3 py-1 text-xs font-extrabold',
                           c.priority === 'CRITICAL' ? 'bg-red-100 text-red-700 border border-red-200' :
                           c.priority === 'HIGH' ? 'bg-amber-100 text-amber-700 border border-amber-200' :
-                          c.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700 border border-yellow-200' :
                           'bg-emerald-100 text-emerald-700 border border-emerald-200'
                         )}>
                           {c.priority} PRIORITY
@@ -139,7 +107,7 @@ export default function HospitalOverview() {
                     </div>
                   </div>
 
-                  {/* Vitals */}
+                  {/* Vitals Ribbon */}
                   <div className="grid grid-cols-4 gap-3 my-4 rounded-xl bg-slate-50 border border-slate-200 p-3 text-center">
                     <div>
                       <p className="text-[10px] font-extrabold uppercase text-slate-400">HR</p>
@@ -159,29 +127,33 @@ export default function HospitalOverview() {
                     </div>
                   </div>
 
-                  {/* Action Bar */}
+                  {/* Multi-Hospital Response Bar */}
                   <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                    <span className="text-xs font-bold text-slate-400">
-                      Ambulance {c.ambulance_id} · Paramedic: {c.paramedic}
-                    </span>
-                    <div className="flex gap-2">
-                      {!c.acknowledged ? (
-                        <button
-                          onClick={(e) => { e.stopPropagation(); acknowledgeCase(c.id); }}
-                          className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-extrabold text-white hover:bg-blue-700 transition"
-                        >
-                          Acknowledge Triage
-                        </button>
-                      ) : !c.preparing ? (
-                        <button
-                          onClick={(e) => { e.stopPropagation(); prepareCase(c.id); }}
-                          className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-extrabold text-white hover:bg-emerald-700 transition"
-                        >
-                          Prepare Trauma Bay
-                        </button>
+                    <div className="text-xs font-bold text-slate-500">
+                      Destination: <strong className="text-slate-900">{c.assigned_hospital_name || 'Unassigned'}</strong>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {!myResponse ? (
+                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => hospitalRespondToCase(c.id, currentHospital.id, currentHospital.name, 'accepted', bedTypeInput)}
+                            className="flex items-center gap-1 rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-extrabold text-white hover:bg-emerald-700 transition"
+                          >
+                            <Check className="h-3.5 w-3.5" /> Accept Accommodation
+                          </button>
+                          <button
+                            onClick={() => hospitalRespondToCase(c.id, currentHospital.id, currentHospital.name, 'declined', undefined, 'No available beds')}
+                            className="flex items-center gap-1 rounded-xl bg-red-100 text-red-700 px-3 py-1.5 text-xs font-extrabold hover:bg-red-200 transition"
+                          >
+                            <X className="h-3.5 w-3.5" /> Decline
+                          </button>
+                        </div>
                       ) : (
-                        <span className="rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2 text-xs font-extrabold text-emerald-700">
-                          ✓ ER TEAM READY
+                        <span className={cn('rounded-xl border px-3 py-1.5 text-xs font-extrabold flex items-center gap-1',
+                          myResponse.status === 'accepted' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'
+                        )}>
+                          {myResponse.status === 'accepted' ? '✓ Accommodation Offered' : '✗ Facility Declined'}
                         </span>
                       )}
                     </div>
@@ -192,10 +164,10 @@ export default function HospitalOverview() {
           </div>
         </div>
 
-        {/* Right: Selected Case Monitor */}
+        {/* Right: Selected Case Monitor & Hospital Action Panel */}
         <div className="lg:col-span-5 space-y-4">
           <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-600">
-            Selected Patient Telemetry & Monitor
+            Selected Patient Telemetry & Accommodation Status
           </h2>
 
           {selectedCase ? (
@@ -206,7 +178,7 @@ export default function HospitalOverview() {
                 <p className="text-xs font-semibold text-slate-500">{selectedCase.patient.chief_complaint}</p>
               </div>
 
-              {/* ECG Canvas from their selected pattern */}
+              {/* ECG Canvas */}
               <div className="space-y-2">
                 <p className="text-xs font-extrabold uppercase tracking-wider text-slate-700">
                   12-Lead Continuous Rhythm Waveform
@@ -214,70 +186,78 @@ export default function HospitalOverview() {
                 <EcgWaveformCanvas
                   heartRate={selectedCase.vitals.heart_rate}
                   pattern={(selectedCase.ecg_pattern as EcgConditionPattern) || 'NORM'}
-                  height={220}
+                  height={200}
                   interactive={true}
                 />
               </div>
 
-              {/* Medical Info */}
+              {/* Inter-Hospital Response Status Grid */}
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 space-y-3">
-                <p className="text-xs font-extrabold uppercase tracking-wider text-slate-700">Patient Medical Info</p>
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <span className="font-bold text-slate-500">Blood Group:</span>
-                    <p className="font-black text-slate-900">{selectedCase.patient.blood_group}</p>
-                  </div>
-                  <div>
-                    <span className="font-bold text-slate-500">Allergies:</span>
-                    <p className="font-black text-red-700">{selectedCase.patient.allergies}</p>
-                  </div>
-                  <div>
-                    <span className="font-bold text-slate-500">Medications:</span>
-                    <p className="font-black text-slate-900">{selectedCase.patient.medications}</p>
-                  </div>
-                  <div>
-                    <span className="font-bold text-slate-500">Conditions:</span>
-                    <p className="font-black text-slate-900">{selectedCase.patient.conditions}</p>
-                  </div>
-                </div>
-                <div className="pt-2 border-t border-slate-200">
-                  <p className="font-bold text-slate-500 text-xs">Symptoms:</p>
-                  <div className="flex flex-wrap gap-1.5 mt-1">
-                    {selectedCase.symptoms.map((s) => (
-                      <span key={s} className="rounded-full bg-blue-100 border border-blue-200 px-2.5 py-0.5 text-[10px] font-bold text-blue-800">{s}</span>
-                    ))}
-                  </div>
+                <p className="text-xs font-extrabold uppercase tracking-wider text-slate-800 flex items-center justify-between">
+                  <span>Hospital Accommodation Offers</span>
+                  <span className="text-[10px] text-blue-600 font-bold">Interconnected Live</span>
+                </p>
+
+                <div className="space-y-2">
+                  {selectedCase.hospital_responses && selectedCase.hospital_responses.length > 0 ? (
+                    selectedCase.hospital_responses.map((resp, i) => (
+                      <div key={i} className="flex items-center justify-between rounded-xl bg-white border border-slate-200 p-3 text-xs">
+                        <div>
+                          <p className="font-black text-slate-900">{resp.hospital_name}</p>
+                          <p className="text-[10px] text-slate-500">{resp.bed_type} · {resp.responded_at}</p>
+                        </div>
+                        <span className={cn('rounded-full px-2.5 py-0.5 text-[10px] font-black',
+                          resp.status === 'accepted' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                        )}>
+                          {resp.status.toUpperCase()}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-xs text-slate-500 italic">No hospital responses recorded yet.</p>
+                  )}
                 </div>
               </div>
 
-              {/* Event Timeline */}
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 space-y-2">
-                <p className="text-xs font-extrabold uppercase tracking-wider text-slate-700">Case Event Timeline</p>
-                {selectedCase.events.map((ev, i) => (
-                  <div key={i} className="flex gap-3 text-xs items-start">
-                    <span className="font-mono font-bold text-slate-500 flex-shrink-0 w-12">{ev.time}</span>
-                    <div className="h-2 w-2 rounded-full bg-blue-600 flex-shrink-0 mt-1" />
-                    <div>
-                      <p className="font-bold text-slate-900">{ev.label}</p>
-                      <p className="text-slate-500">{ev.actor}</p>
-                    </div>
-                  </div>
-                ))}
+              {/* Offer Facility Accommodation Controls */}
+              <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-5 space-y-3">
+                <p className="text-xs font-extrabold uppercase tracking-wider text-blue-900">
+                  Offer Accommodation from {currentHospital.name}
+                </p>
+                <div>
+                  <label className="block text-[10px] font-extrabold uppercase text-slate-600 mb-1">Facility / Bed Type Available</label>
+                  <input
+                    type="text"
+                    value={bedTypeInput}
+                    onChange={(e) => setBedTypeInput(e.target.value)}
+                    placeholder="e.g. Cath Lab, Red Zone Bay 2"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-blue-600"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => hospitalRespondToCase(selectedCase.id, currentHospital.id, currentHospital.name, 'accepted', bedTypeInput)}
+                    className="flex-1 rounded-xl bg-emerald-600 py-2.5 text-xs font-black text-white hover:bg-emerald-700 transition"
+                  >
+                    Accept & Confirm Facility
+                  </button>
+                  <button
+                    onClick={() => hospitalRespondToCase(selectedCase.id, currentHospital.id, currentHospital.name, 'declined', undefined, 'No capacity')}
+                    className="rounded-xl bg-red-100 text-red-700 px-4 py-2.5 text-xs font-black hover:bg-red-200 transition"
+                  >
+                    Decline
+                  </button>
+                </div>
               </div>
 
               <Link
                 href={`/hospital/cases/${selectedCase.id}`}
                 className="w-full flex items-center justify-center gap-2 rounded-xl bg-slate-900 py-3.5 text-xs font-extrabold text-white hover:bg-slate-800 transition"
               >
-                Open Full Patient Clinical Dossier
-                <ChevronRight className="h-4 w-4" />
+                Open Full Patient Dossier <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
-          ) : (
-            <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center text-sm font-semibold text-slate-500">
-              No case selected. Click a case from the triage queue.
-            </div>
-          )}
+          ) : null}
         </div>
       </div>
     </div>
