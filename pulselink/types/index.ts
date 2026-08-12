@@ -11,6 +11,8 @@ export interface UserProfile {
   hospital_id?: string;
   ambulance_org_id?: string;
   avatar_url?: string;
+  access_code?: string; // Secure unique login code (e.g. DOC-9982-PX)
+  doctor_license_id?: string; // Medical license ID (e.g. KMC-88294)
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -28,6 +30,8 @@ export interface Hospital {
   latitude: number;
   longitude: number;
   departments: string[];
+  access_code?: string; // Secure unique login code (e.g. HOSP-BLR-701)
+  hospital_code_id?: string; // Unique Registration ID
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -42,10 +46,30 @@ export interface Ambulance {
   current_latitude?: number;
   current_longitude?: number;
   assigned_paramedic_id?: string;
+  access_code?: string; // Secure unique unit code (e.g. PARA-UNIT-402)
+  paramedic_badge_id?: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
 }
+
+// ─── Clinical Smart Chat ─────────────────────────────────────────────────────
+export type MessageType = 'text' | 'image' | 'audio' | 'ai_summary' | 'telemetry_alert';
+
+export interface CaseChatMessage {
+  id: string;
+  case_id: string;
+  sender_id?: string;
+  sender_name: string;
+  sender_role: 'paramedic' | 'doctor' | 'hospital_admin' | 'system';
+  message_type: MessageType;
+  content: string;
+  media_url?: string;
+  metadata?: Record<string, unknown>;
+  is_urgent?: boolean;
+  created_at: string;
+}
+
 
 // ─── Patient ─────────────────────────────────────────────────────────────────
 export interface Patient {

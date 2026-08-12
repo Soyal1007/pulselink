@@ -4,12 +4,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Heart, Bell, LayoutDashboard, Ambulance, BarChart3,
-  Settings, Users, AlertTriangle, ChevronDown, Menu, X, Building2
+  Settings, Users, AlertTriangle, ChevronDown, Menu, X, Building2, MessageSquare
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const NAV = [
   { href: '/hospital', icon: LayoutDashboard, label: 'Overview & Triage Queue' },
+  { href: '/hospital/chat', icon: MessageSquare, label: 'Clinical Smart Chat' },
   { href: '/hospital/incoming', icon: Ambulance, label: 'Incoming Fleet' },
   { href: '/hospital/cases', icon: AlertTriangle, label: 'Emergency Cases' },
   { href: '/hospital/analytics', icon: BarChart3, label: 'Clinical Analytics' },
