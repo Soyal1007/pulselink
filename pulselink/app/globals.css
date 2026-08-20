@@ -44,3 +44,10 @@
     linear-gradient(to bottom, #cbd5e1 1px, transparent 1px);
   background-size: 10px 10px, 10px 10px, 50px 50px, 50px 50px;
 }
+
+/* Hide Next.js Dev Overlay completely */
+nextjs-portal,
+#nextjs-dev-overlay,
+.nextjs-toast-errors-parent {
+  display: none !important;
+}
