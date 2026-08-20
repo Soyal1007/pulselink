@@ -71,7 +71,7 @@ export default function LoginPage() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Authentication failed.';
       setError(msg);
-    } fontally: {
+    } finally {
       setLoading(false);
     }
   }
