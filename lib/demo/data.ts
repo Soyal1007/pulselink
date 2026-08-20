@@ -85,10 +85,10 @@ export const DEMO_PATIENTS: Patient[] = [
 ];
 
 export const DEMO_CREDENTIALS = [
-  { role: 'Paramedic', email: 'paramedic@demo.pulselink', password: 'Demo@1234', name: 'Arjun Kumar' },
-  { role: 'Doctor', email: 'doctor@demo.pulselink', password: 'Demo@1234', name: 'Dr. Meera Pillai' },
-  { role: 'Hospital Admin', email: 'admin@demo.pulselink', password: 'Demo@1234', name: 'Suresh Babu' },
-  { role: 'Super Admin', email: 'superadmin@demo.pulselink', password: 'Demo@1234', name: 'System Admin' },
+  { role: 'Paramedic', email: 'paramedic@demo.pulselink', password: 'Demo@1234', name: 'Arjun Kumar (Unit 402)', accessCode: 'PARA-4029-EMS', systemId: 'PMD-IND-9023' },
+  { role: 'Doctor', email: 'doctor@demo.pulselink', password: 'Demo@1234', name: 'Dr. Meera Pillai (ER Lead)', accessCode: 'DOC-8821-CARD', systemId: 'KMC-DOC-7749' },
+  { role: 'Hospital Admin', email: 'admin@demo.pulselink', password: 'Demo@1234', name: 'Suresh Babu (City Gen ER)', accessCode: 'HOSP-7012-BLR', systemId: 'HOSP-REG-0112' },
+  { role: 'Super Admin', email: 'superadmin@demo.pulselink', password: 'Demo@1234', name: 'System Security Lead', accessCode: 'ADMIN-9999-ROOT', systemId: 'SYS-SEC-0001' },
 ];
 
 export function generateDemoVitals(caseId: string, offset = 0): Vitals {

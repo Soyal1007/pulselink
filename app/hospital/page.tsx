@@ -18,9 +18,51 @@ export default function HospitalOverview() {
   const [currentHospital, setCurrentHospital] = useState(HOSPITALS[0]);
   const [selectedCaseId, setSelectedCaseId] = useState<string>(cases[0]?.id || '');
   const [bedTypeInput, setBedTypeInput] = useState('Emergency Red Zone Bay');
+  const [filterCritical, setFilterCritical] = useState(false);
 
   const selectedCase = cases.find((c) => c.id === selectedCaseId) || cases[0];
   const criticalCount = cases.filter((c) => c.priority === 'CRITICAL').length;
+
+  const displayedCases = filterCritical ? cases.filter(c => c.priority === 'CRITICAL') : cases;
+
+  const handleExportShiftLog = () => {
+    const shiftLogContent = `======================================================================
+               PULSELINK EMERGENCY TRIAGE NETWORK - SHIFT REPORT
+======================================================================
+Generated At  : ${new Date().toLocaleString()}
+Facility Name : ${currentHospital.name}
+Total Broadcasts: ${cases.length} active emergency broadcasts
+Critical cases: ${cases.filter(c => c.priority === 'CRITICAL').length}
+
+----------------------------------------------------------------------
+ACTIVE PATIENTS & TRIAGE MATRIX
+----------------------------------------------------------------------
+${cases.map((c, i) => {
+  const resp = c.hospital_responses?.find(r => r.hospital_id === currentHospital.id);
+  const respStatus = resp ? `[Response: ${resp.status.toUpperCase()} - ${resp.bed_type || 'No Bed'}]` : '[Response: NONE/PENDING]';
+  return `${i + 1}. [${c.priority}] Ref: ${c.case_ref}
+   Patient: ${c.patient.name} (${c.patient.age} y/o, ${c.patient.gender})
+   Complaint: ${c.patient.chief_complaint}
+   Vitals: HR ${c.vitals.heart_rate} bpm | SpO2 ${c.vitals.spo2}% | BP ${c.vitals.systolic_bp}/${c.vitals.diastolic_bp} mmHg
+   ETA: ${c.eta_min} min | Paramedic: ${c.paramedic || 'Unit crew'}
+   ${respStatus}
+   Destination: ${c.assigned_hospital_name || 'Unassigned'}
+`;
+}).join('\n----------------------------------------------------------------------\n')}
+
+======================================================================
+           CONFIDENTIAL TRIAGE RECORD · AUDIT GENERATED LOG
+======================================================================`;
+
+    const blob = new Blob([shiftLogContent], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `pulselink_shift_report_${currentHospital.name.replace(/\s+/g, '_').toLowerCase()}.txt`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="w-full space-y-8">
@@ -52,10 +94,22 @@ export default function HospitalOverview() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-extrabold text-slate-700 hover:bg-slate-50 shadow-xs">
-            <Filter className="h-4 w-4 text-slate-500" /> Filter Triage
+          <button 
+            onClick={() => setFilterCritical(!filterCritical)}
+            className={cn(
+              "flex items-center gap-2 rounded-xl border px-4 py-2.5 text-xs font-extrabold shadow-xs transition-all duration-300",
+              filterCritical 
+                ? "bg-red-50 border-red-200 text-red-700 hover:bg-red-100" 
+                : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+            )}
+          >
+            <Filter className={cn("h-4 w-4", filterCritical ? "text-red-500" : "text-slate-500")} /> 
+            {filterCritical ? "Showing Critical Only" : "Filter Critical"}
           </button>
-          <button className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-extrabold text-white hover:bg-blue-700 shadow-sm">
+          <button 
+            onClick={handleExportShiftLog}
+            className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-extrabold text-white hover:bg-blue-700 shadow-sm transition active:scale-95"
+          >
             <Download className="h-4 w-4" /> Export Shift Log
           </button>
         </div>
@@ -66,11 +120,11 @@ export default function HospitalOverview() {
         {/* Left: Triage List */}
         <div className="lg:col-span-7 space-y-4">
           <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-600">
-            City-Wide Emergency Patient Stream ({cases.length})
+            City-Wide Emergency Patient Stream ({displayedCases.length})
           </h2>
 
           <div className="space-y-4">
-            {cases.map((c) => {
+            {displayedCases.map((c) => {
               const isSelected = selectedCase?.id === c.id;
               const myResponse = c.hospital_responses?.find((r) => r.hospital_id === currentHospital.id);
               const isAssignedToMe = c.assigned_hospital_id === currentHospital.id;

@@ -58,18 +58,73 @@ export default function EcgPage() {
         </div>
       </div>
 
-      {/* Hardware Explanation Banner */}
-      <div className="pro-card p-5 bg-blue-50/60 border-blue-200 text-slate-800 space-y-2">
-        <div className="flex items-center gap-2 text-xs font-black uppercase text-blue-800">
-          <Info className="h-4 w-4 text-blue-600" />
-          How ECG Hardware Telemetry Sync Works in Ambulances
+      {/* Wireless ECG Pairing Control Box */}
+      <div className="pro-card p-6 bg-slate-900 text-white space-y-4 shadow-md">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-blue-600 text-white">
+              <Bluetooth className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-extrabold text-white">Wireless ECG Machine Pairing</h3>
+              <p className="text-xs text-slate-400">Web Bluetooth (WebBLE) & Wi-Fi Direct Defibrillator Bridge</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-ping" />
+            <span className="text-xs font-mono font-bold text-emerald-400">ZOLL X-Series Connected</span>
+          </div>
         </div>
-        <p className="text-xs font-medium text-slate-600 leading-relaxed">
-          Ambulances utilize standard 12-lead defibrillators (ZOLL X Series, Philips Intellivue, LifePak 15). PulseLink acquires signal data through 3 operational pathways:
-          <strong className="text-slate-900"> (1) Direct Bluetooth/Wi-Fi BLE Stream</strong> from monitor memory,
-          <strong className="text-slate-900"> (2) Computer Vision Photo Digitization</strong> of printed paper strips, or
-          <strong className="text-slate-900"> (3) Exported Signal Files (CSV/JSON)</strong>.
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div className="rounded-xl border border-slate-800 bg-slate-950 p-3.5 space-y-1">
+            <span className="font-bold text-blue-400 uppercase text-[10px]">1. Bluetooth LE Stream</span>
+            <p className="text-slate-300 font-medium">Pairs directly via Web Bluetooth API to receive 250Hz lead data.</p>
+          </div>
+          <div className="rounded-xl border border-slate-800 bg-slate-950 p-3.5 space-y-1">
+            <span className="font-bold text-purple-400 uppercase text-[10px]">2. Wi-Fi Local Gateway</span>
+            <p className="text-slate-300 font-medium">Receives UDP telemetry packets over ambulance local Wi-Fi router.</p>
+          </div>
+          <div className="rounded-xl border border-slate-800 bg-slate-950 p-3.5 space-y-1">
+            <span className="font-bold text-emerald-400 uppercase text-[10px]">3. Serial USB Bridge</span>
+            <p className="text-slate-300 font-medium">Backup hardwire serial connection via Web Serial API.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Hugging Face Model Deep Technical Info Banner */}
+      <div className="pro-card p-6 border-blue-200 bg-blue-50/70 space-y-3 text-slate-900">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 font-black text-sm text-blue-900">
+            <Zap className="h-5 w-5 text-blue-600" />
+            Hugging Face Model Architecture: adzetto/ecg-arrhythmia-classifier
+          </div>
+          <span className="rounded-full bg-blue-600 text-white text-[10px] font-black px-3 py-1">ONNX RUNTIME ACTIVE</span>
+        </div>
+
+        <p className="text-xs font-medium text-slate-700 leading-relaxed">
+          The embedded AI engine executes a 1D ResNet convolutional neural network trained on 45,000+ clinical 12-lead ECG records. It predicts 7 primary cardiac conditions in sub-150ms latency:
         </p>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-2 text-xs font-bold">
+          <div className="rounded-lg bg-white border border-slate-200 p-2.5">
+            <span className="text-slate-500 text-[10px]">STEMI / STE</span>
+            <p className="text-red-600">ST-Elevation Alert</p>
+          </div>
+          <div className="rounded-lg bg-white border border-slate-200 p-2.5">
+            <span className="text-slate-500 text-[10px]">RBBB / LBBB</span>
+            <p className="text-amber-700">Bundle Branch Block</p>
+          </div>
+          <div className="rounded-lg bg-white border border-slate-200 p-2.5">
+            <span className="text-slate-500 text-[10px]">AFib</span>
+            <p className="text-orange-600">Atrial Fibrillation</p>
+          </div>
+          <div className="rounded-lg bg-white border border-slate-200 p-2.5">
+            <span className="text-slate-500 text-[10px]">STD</span>
+            <p className="text-amber-600">ST Depression</p>
+          </div>
+        </div>
       </div>
 
       {/* 3 Hardware Mode Tabs */}

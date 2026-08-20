@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Home, Plus, Activity, MapPin, Settings, Wifi, WifiOff,
-  Heart, RefreshCw, Bell, Radio, ShieldCheck
+  Heart, RefreshCw, Bell, Radio, ShieldCheck, MessageSquare
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store/appStore';
@@ -26,8 +26,8 @@ export default function ParamedicLayout({ children }: { children: React.ReactNod
 
   const navItems = [
     { href: '/paramedic', icon: Home, label: 'Dashboard' },
-    { href: '/paramedic/case/new', icon: Plus, label: 'New Case' },
-    { href: '/paramedic/vitals', icon: Activity, label: 'Vitals Telemetry' },
+    { href: '/paramedic/chat', icon: MessageSquare, label: 'Smart Chat' },
+    { href: '/paramedic/vitals', icon: Activity, label: 'Vitals Stream' },
     { href: '/paramedic/ecg', icon: Activity, label: 'ECG Scanner' },
     { href: '/paramedic/tracking', icon: MapPin, label: 'GPS Tracking' },
   ];
