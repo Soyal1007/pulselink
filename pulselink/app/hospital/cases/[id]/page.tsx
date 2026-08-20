@@ -291,21 +291,21 @@ ${events.map(ev => `[${ev.time}] ${ev.label} (${ev.actor})`).join('\n')}
   return (
     <div className="w-full space-y-6">
       {/* Header Bar */}
-      <div className="flex items-center justify-between border-b border-[#1f2d3d] pb-4 flex-wrap gap-4">
+      <div className="flex items-center justify-between border-b border-slate-200 pb-4 flex-wrap gap-4">
         <div className="flex items-center gap-3">
-          <Link href="/hospital/cases" className="btn-ghost p-2 rounded-xl text-slate-400 hover:text-white hover:bg-[#1a2332]">
+          <Link href="/hospital/cases" className="rounded-xl p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition">
             <ChevronLeft className="h-5 w-5" />
           </Link>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl font-black text-white">{c.patient.name}</h1>
+              <h1 className="text-2xl font-black text-slate-900">{c.patient.name}</h1>
               <span className={cn(
-                'px-2.5 py-0.5 rounded-full text-xs font-bold uppercase transition-colors duration-300',
-                priority === 'CRITICAL' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                'px-2.5 py-0.5 rounded-full text-xs font-bold uppercase border transition-colors duration-300',
+                priority === 'CRITICAL' ? 'bg-red-50 border-red-200 text-red-700' : 'bg-amber-50 border-amber-200 text-amber-700'
               )}>{priority}</span>
-              {c.is_demo && <span className="rounded-full bg-[#111827] border border-slate-700 text-[10px] font-bold text-slate-400 px-2 py-0.5">DEMO</span>}
+              {c.is_demo && <span className="rounded-full bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-550 px-2 py-0.5">DEMO</span>}
             </div>
-            <p className="text-xs font-mono text-slate-400 mt-0.5">Case ID: {c.case_ref}</p>
+            <p className="text-xs font-mono text-slate-500 mt-0.5">Case ID: {c.case_ref}</p>
           </div>
         </div>
 
@@ -330,64 +330,64 @@ ${events.map(ev => `[${ev.time}] ${ev.label} (${ev.actor})`).join('\n')}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             
             {/* Card 1: Patient Information */}
-            <div className="card p-5 bg-[#111827] border border-[#1f2d3d] rounded-2xl">
-              <h3 className="mb-4 flex items-center gap-2 font-black text-white text-xs tracking-wider uppercase">
-                <User className="h-4 w-4 text-blue-400" />
+            <div className="card p-5 bg-white border border-slate-200 rounded-2xl shadow-2xs">
+              <h3 className="mb-4 flex items-center gap-2 font-black text-slate-900 text-xs tracking-wider uppercase">
+                <User className="h-4 w-4 text-blue-600" />
                 Patient Information
               </h3>
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div>
                   <p className="text-slate-500 font-bold uppercase text-[10px]">Age</p>
-                  <p className="font-semibold text-white">{c.patient.age} y/o</p>
+                  <p className="font-semibold text-slate-900">{c.patient.age} y/o</p>
                 </div>
                 <div>
                   <p className="text-slate-500 font-bold uppercase text-[10px]">Gender</p>
-                  <p className="font-semibold text-white">{c.patient.gender}</p>
+                  <p className="font-semibold text-slate-900">{c.patient.gender}</p>
                 </div>
                 <div>
                   <p className="text-slate-500 font-bold uppercase text-[10px]">Blood Group</p>
-                  <p className="font-semibold text-white">{c.patient.blood_group}</p>
+                  <p className="font-semibold text-slate-900">{c.patient.blood_group}</p>
                 </div>
                 <div>
                   <p className="text-slate-500 font-bold uppercase text-[10px]">Known Allergies</p>
-                  <p className="font-semibold text-red-400">{c.patient.allergies}</p>
+                  <p className="font-semibold text-red-650">{c.patient.allergies}</p>
                 </div>
-                <div className="col-span-2 border-t border-[#1f2d3d] pt-2">
+                <div className="col-span-2 border-t border-slate-100 pt-2">
                   <p className="text-slate-500 font-bold uppercase text-[10px]">Chief Complaint</p>
-                  <p className="font-medium text-slate-200 mt-0.5 leading-tight">{c.chief_complaint}</p>
+                  <p className="font-medium text-slate-800 mt-0.5 leading-tight">{c.chief_complaint}</p>
                 </div>
                 <div className="col-span-2">
                   <p className="text-slate-500 font-bold uppercase text-[10px]">Pre-Existing Conditions</p>
-                  <p className="font-medium text-slate-300 mt-0.5 leading-tight">{c.patient.conditions}</p>
+                  <p className="font-medium text-slate-700 mt-0.5 leading-tight">{c.patient.conditions}</p>
                 </div>
                 <div className="col-span-2">
                   <p className="text-slate-500 font-bold uppercase text-[10px]">Current Medications</p>
-                  <p className="font-medium text-slate-300 mt-0.5 leading-tight">{c.patient.medications}</p>
+                  <p className="font-medium text-slate-700 mt-0.5 leading-tight">{c.patient.medications}</p>
                 </div>
               </div>
             </div>
 
-            {/* Card 2: Ambulance Info */}
-            <div className="card p-5 bg-[#111827] border border-[#1f2d3d] rounded-2xl flex flex-col justify-between">
+            {/* Card 2: Transit Ambulance */}
+            <div className="card p-5 bg-white border border-slate-200 rounded-2xl shadow-2xs flex flex-col justify-between">
               <div>
-                <h3 className="mb-4 flex items-center gap-2 font-black text-white text-xs tracking-wider uppercase">
-                  <Ambulance className="h-4 w-4 text-green-400" />
+                <h3 className="mb-4 flex items-center gap-2 font-black text-slate-900 text-xs tracking-wider uppercase">
+                  <Ambulance className="h-4 w-4 text-emerald-600" />
                   Transit Ambulance
                 </h3>
-                <div className="text-center mb-4 bg-[#0d1117] py-3 rounded-xl border border-[#1f2d3d]">
-                  <p className="text-3xl font-black text-blue-400">{c.ambulance.eta} <span className="text-sm font-bold text-slate-500">mins</span></p>
-                  <p className="text-xs text-slate-400 mt-0.5">Estimated Arrival (ETA)</p>
+                <div className="text-center mb-4 bg-blue-50/50 py-3 rounded-xl border border-blue-100">
+                  <p className="text-3xl font-black text-blue-600">{c.ambulance.eta} <span className="text-sm font-bold text-blue-800">mins</span></p>
+                  <p className="text-xs text-blue-900 mt-0.5 font-bold">Estimated Arrival (ETA)</p>
                   <p className="text-[10px] text-slate-500">{c.ambulance.distance} km remaining</p>
                 </div>
               </div>
-              <div className="space-y-1 text-xs text-slate-300 border-t border-[#1f2d3d] pt-2">
+              <div className="space-y-1 text-xs text-slate-700 border-t border-slate-100 pt-2">
                 <div className="flex justify-between">
                   <span className="text-slate-500 font-bold uppercase text-[10px]">Unit ID</span>
-                  <span className="font-mono text-white">{c.ambulance.id}</span>
+                  <span className="font-mono text-slate-900 font-bold">{c.ambulance.id}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500 font-bold uppercase text-[10px]">Responding Paramedic</span>
-                  <span className="text-white font-semibold">{c.ambulance.paramedic}</span>
+                  <span className="text-slate-900 font-semibold">{c.ambulance.paramedic}</span>
                 </div>
               </div>
             </div>
@@ -395,13 +395,13 @@ ${events.map(ev => `[${ev.time}] ${ev.label} (${ev.actor})`).join('\n')}
           </div>
 
           {/* Card 3: Live Vitals Dashboard */}
-          <div className="card p-5 bg-[#111827] border border-[#1f2d3d] rounded-2xl">
-            <div className="flex items-center justify-between border-b border-[#1f2d3d] pb-3 mb-4">
-              <h3 className="flex items-center gap-2 font-black text-white text-xs tracking-wider uppercase">
+          <div className="card p-5 bg-white border border-slate-200 rounded-2xl shadow-2xs">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+              <h3 className="flex items-center gap-2 font-black text-slate-900 text-xs tracking-wider uppercase">
                 <Heart className="h-4 w-4 text-red-500 animate-pulse" />
                 Live Telemetry Ribbon
               </h3>
-              <span className="flex items-center gap-1 rounded-full bg-red-500/10 border border-red-500/20 px-2 py-0.5 text-[9px] font-bold text-red-400">
+              <span className="flex items-center gap-1 rounded-full bg-red-50 border border-red-200 px-2 py-0.5 text-[9px] font-bold text-red-700">
                 <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-ping" />
                 STREAMING
               </span>
@@ -409,55 +409,58 @@ ${events.map(ev => `[${ev.time}] ${ev.label} (${ev.actor})`).join('\n')}
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
               {[
-                { label: 'Heart Rate', value: liveVitals.heart_rate, unit: 'bpm', color: 'text-red-400', warn: liveVitals.heart_rate > 100 },
-                { label: 'SpO2', value: liveVitals.spo2, unit: '%', color: 'text-blue-400', warn: liveVitals.spo2 < 93 },
-                { label: 'Resp. Rate', value: liveVitals.resp_rate, unit: '/m', color: 'text-cyan-400', warn: false },
-                { label: 'Systolic BP', value: liveVitals.systolic_bp, unit: 'mmHg', color: 'text-purple-400', warn: liveVitals.systolic_bp > 140 },
-                { label: 'Diastolic BP', value: liveVitals.diastolic_bp, unit: 'mmHg', color: 'text-purple-300', warn: false },
-                { label: 'Temperature', value: liveVitals.temperature, unit: '°C', color: 'text-yellow-400', warn: false },
+                { label: 'Heart Rate', value: liveVitals.heart_rate, unit: 'bpm', color: 'text-red-650', warn: liveVitals.heart_rate > 100 },
+                { label: 'SpO2', value: liveVitals.spo2, unit: '%', color: 'text-blue-650', warn: liveVitals.spo2 < 93 },
+                { label: 'Resp. Rate', value: liveVitals.resp_rate, unit: '/m', color: 'text-cyan-650', warn: false },
+                { label: 'Systolic BP', value: liveVitals.systolic_bp, unit: 'mmHg', color: 'text-purple-650', warn: liveVitals.systolic_bp > 140 },
+                { label: 'Diastolic BP', value: liveVitals.diastolic_bp, unit: 'mmHg', color: 'text-purple-600', warn: false },
+                { label: 'Temperature', value: liveVitals.temperature, unit: '°C', color: 'text-amber-650', warn: false },
               ].map(({ label, value, unit, color, warn }) => (
                 <div key={label} className={cn(
                   'rounded-xl p-3 flex flex-col justify-between border transition-all duration-300',
-                  warn ? 'border-red-500/30 bg-red-950/20 shadow-xs' : 'bg-[#0d1117] border-[#1f2d3d]'
+                  warn ? 'border-red-200 bg-red-50 text-red-700 shadow-2xs' : 'bg-slate-50 border-slate-200'
                 )}>
                   <p className="text-[10px] text-slate-500 font-bold uppercase">{label}</p>
                   <p className={cn('text-lg font-black mt-2', color)}>
-                    {value} <span className="text-[10px] font-bold text-slate-500">{unit}</span>
+                    {value} <span className="text-[10px] font-bold text-slate-400">{unit}</span>
                   </p>
-                  {warn && <p className="text-[9px] text-red-400 font-semibold mt-1">▲ Abnormal</p>}
+                  {warn && <p className="text-[9px] text-red-600 font-bold mt-1">▲ Abnormal</p>}
                 </div>
               ))}
             </div>
           </div>
 
           {/* Card 4: AI ECG screening & ECG waveform canvas */}
-          <div className="card p-5 bg-[#111827] border border-[#1f2d3d] rounded-2xl">
-            <h3 className="mb-4 flex items-center gap-2 font-black text-white text-xs tracking-wider uppercase">
-              <Activity className="h-4 w-4 text-orange-400" />
+          <div className="card p-5 bg-white border border-slate-200 rounded-2xl shadow-2xs">
+            <h3 className="mb-4 flex items-center gap-2 font-black text-slate-900 text-xs tracking-wider uppercase">
+              <Activity className="h-4 w-4 text-orange-600" />
               Automated AI ECG Screening
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
-              <div className="md:col-span-7 rounded-xl overflow-hidden bg-slate-950 p-1.5 border border-[#1f2d3d]">
+              <div className="md:col-span-7 rounded-xl overflow-hidden bg-slate-950 p-1.5 border border-slate-800">
                 <EcgWaveformCanvas heartRate={liveVitals.heart_rate} pattern={c.ecg.ai_result.includes('RBBB') ? 'RBBB' : 'NORM'} height={120} interactive={false} />
               </div>
               
-              <div className="md:col-span-5 space-y-3 bg-[#0d1117] border border-[#1f2d3d] p-4 rounded-xl">
-                <div className="flex items-center justify-between border-b border-[#1f2d3d] pb-2">
-                  <span className="rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-400 px-2 py-0.5">
+              <div className="md:col-span-5 space-y-3 bg-slate-50 border border-slate-200 p-4 rounded-xl">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                  <span className={cn(
+                    'rounded-full text-[10px] font-bold px-2 py-0.5 border',
+                    c.ecg.risk === 'HIGH' ? 'bg-red-50 border-red-200 text-red-700' : 'bg-amber-50 border-amber-200 text-amber-700'
+                  )}>
                     {c.ecg.risk} RISK
                   </span>
-                  <span className="text-[10px] font-bold text-slate-500">Confidence: {c.ecg.confidence}%</span>
+                  <span className="text-[10px] font-bold text-slate-550">Confidence: {c.ecg.confidence}%</span>
                 </div>
                 <div className="space-y-1.5">
                   {c.ecg.patterns.map((p) => (
-                    <div key={p} className="flex items-center gap-1.5 text-xs font-semibold text-slate-200">
-                      <AlertTriangle className="h-3.5 w-3.5 text-orange-400 flex-shrink-0" />
+                    <div key={p} className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                      <AlertTriangle className="h-3.5 w-3.5 text-orange-500 flex-shrink-0" />
                       <span>{p}</span>
                     </div>
                   ))}
                 </div>
-                <p className="text-[9px] text-slate-500 italic leading-tight pt-1">
+                <p className="text-[9px] text-slate-400 italic leading-tight pt-1">
                   AI screening output is an auxiliary warning and does not substitute professional diagnostic consensus.
                 </p>
               </div>
@@ -467,8 +470,8 @@ ${events.map(ev => `[${ev.time}] ${ev.label} (${ev.actor})`).join('\n')}
           {/* Action Row & Timeline */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
             {/* Preparedness Actions */}
-            <div className="md:col-span-5 card p-5 bg-[#111827] border border-[#1f2d3d] rounded-2xl flex flex-col justify-between">
-              <h3 className="mb-4 font-black text-white text-xs tracking-wider uppercase"> Preparedness Commands</h3>
+            <div className="md:col-span-5 card p-5 bg-white border border-slate-200 rounded-2xl shadow-2xs flex flex-col justify-between">
+              <h3 className="mb-4 font-black text-slate-900 text-xs tracking-wider uppercase"> Preparedness Commands</h3>
               <div className="space-y-2">
                 <button
                   onClick={handlePrepClick}
@@ -476,7 +479,7 @@ ${events.map(ev => `[${ev.time}] ${ev.label} (${ev.actor})`).join('\n')}
                   className={cn(
                     'w-full flex items-center justify-center gap-2 rounded-xl py-3 text-xs font-black transition shadow-sm',
                     prepStatus === 'idle' && 'bg-blue-600 hover:bg-blue-700 text-white',
-                    prepStatus === 'preparing' && 'bg-amber-600/30 border border-amber-500/40 text-amber-300 animate-pulse cursor-wait',
+                    prepStatus === 'preparing' && 'bg-amber-500/20 border border-amber-250 text-amber-700 animate-pulse cursor-wait',
                     prepStatus === 'ready' && 'bg-emerald-600 text-white'
                   )}
                 >
@@ -502,7 +505,7 @@ ${events.map(ev => `[${ev.time}] ${ev.label} (${ev.actor})`).join('\n')}
 
                 <button
                   onClick={handleEscalate}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl border border-red-950 bg-red-950/20 py-3 text-xs font-black text-red-400 hover:bg-red-900/30 transition"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-3 text-xs font-black text-red-700 hover:bg-red-100 transition"
                 >
                   <ShieldAlert className="h-4 w-4" />
                   Escalate Case Severity
@@ -511,20 +514,20 @@ ${events.map(ev => `[${ev.time}] ${ev.label} (${ev.actor})`).join('\n')}
             </div>
 
             {/* Case Timeline */}
-            <div className="md:col-span-7 card p-5 bg-[#111827] border border-[#1f2d3d] rounded-2xl">
-              <h3 className="mb-4 flex items-center gap-2 font-black text-white text-xs tracking-wider uppercase">
-                <Clock className="h-4 w-4 text-blue-400" />
+            <div className="md:col-span-7 card p-5 bg-white border border-slate-200 rounded-2xl shadow-2xs">
+              <h3 className="mb-4 flex items-center gap-2 font-black text-slate-900 text-xs tracking-wider uppercase">
+                <Clock className="h-4 w-4 text-blue-600" />
                 Case Timeline
               </h3>
               <div className="relative space-y-4 pl-5">
                 {events.map((ev, i) => (
                   <div key={i} className="relative">
-                    <div className="absolute -left-5 top-1 h-2.5 w-2.5 rounded-full bg-blue-500 border-2 border-[#111827]" />
+                    <div className="absolute -left-5 top-1 h-2.5 w-2.5 rounded-full bg-blue-600 border-2 border-white" />
                     {i < events.length - 1 && (
-                      <div className="absolute -left-[16px] top-3 h-full w-0.5 bg-[#1f2d3d]" />
+                      <div className="absolute -left-[16px] top-3 h-full w-0.5 bg-slate-200" />
                     )}
-                    <p className="text-xs font-bold text-white">{ev.label}</p>
-                    <div className="flex gap-2 text-[10px] text-slate-500 mt-0.5 font-semibold">
+                    <p className="text-xs font-bold text-slate-900">{ev.label}</p>
+                    <div className="flex gap-2 text-[10px] text-slate-450 mt-0.5 font-semibold">
                       <span className="font-mono">{ev.time}</span>
                       <span>·</span>
                       <span>{ev.actor}</span>
@@ -545,7 +548,7 @@ ${events.map(ev => `[${ev.time}] ${ev.label} (${ev.actor})`).join('\n')}
             hospitalName="City General ER"
             caseId={c.id}
             patientName={c.patient.name}
-            className="h-[840px] shadow-lg border border-[#1f2d3d]"
+            className="h-[840px] shadow-lg border border-slate-200 rounded-2xl overflow-hidden"
           />
         </div>
 

@@ -10,6 +10,28 @@ import type { CaseChatMessage, MessageType } from '@/types';
 import { useAppStore } from '@/store/appStore';
 import { createClient } from '@/lib/supabase/client';
 
+// Simple Regex/Split helper to parse **bold** markdown text
+const formatMarkdown = (text: string, isMe: boolean) => {
+  if (!text) return '';
+  const parts = text.split('**');
+  return parts.map((part, index) => {
+    if (index % 2 === 1) {
+      return (
+        <strong
+          key={index}
+          className={cn(
+            'font-extrabold',
+            isMe ? 'text-white underline decoration-white/30' : 'text-slate-900 underline decoration-slate-305'
+          )}
+        >
+          {part}
+        </strong>
+      );
+    }
+    return part;
+  });
+};
+
 // Tone Generator helper using Web Audio API for immersive call sound effects
 class CallSoundEffects {
   private audioCtx: AudioContext | null = null;
@@ -866,10 +888,7 @@ export default function ClinicalSmartChat({
       {/* ────────────────── MESSAGE FEED ────────────────── */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50">
         {messages.map((msg) => {
-          const isMe = msg.sender_role === currentUserRole || 
-                       (currentUserRole === 'paramedic' && msg.sender_role === 'paramedic') || 
-                       (currentUserRole === 'doctor' && msg.sender_role === 'doctor') ||
-                       (currentUserRole === 'hospital_admin' && msg.sender_role === 'hospital_admin');
+          const isMe = msg.sender_name.toLowerCase().includes(currentUserName.toLowerCase());
           const isAi = msg.message_type === 'ai_summary';
           const isSystem = msg.sender_role === 'system';
 
@@ -949,7 +968,7 @@ export default function ClinicalSmartChat({
 
                 {/* 3. Message text content rendering */}
                 {msg.content && msg.message_type !== 'audio' && (
-                  <p className="leading-relaxed font-semibold">{msg.content}</p>
+                  <p className="leading-relaxed font-semibold whitespace-pre-line">{formatMarkdown(msg.content, isMe)}</p>
                 )}
               </div>
             </div>

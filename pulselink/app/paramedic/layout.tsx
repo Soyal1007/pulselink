@@ -88,13 +88,18 @@ export default function ParamedicLayout({ children }: { children: React.ReactNod
               <Link
                 key={href}
                 href={href}
-                className={cn(
-                  'flex flex-col items-center gap-1 py-3 text-xs font-bold transition-all',
-                  active ? 'text-blue-600 bg-blue-50/60' : 'text-slate-500 hover:text-slate-800'
-                )}
+                passHref
+                legacyBehavior
               >
-                <Icon className={cn('h-5 w-5', active ? 'text-blue-600 scale-110' : 'text-slate-400')} />
-                <span className="text-[11px]">{label}</span>
+                <a
+                  className={cn(
+                    'flex flex-col items-center gap-1 py-3 text-xs font-bold transition-all',
+                    active ? 'text-blue-600 bg-blue-50/60' : 'text-slate-500 hover:text-slate-800'
+                  )}
+                >
+                  <Icon className={cn('h-5 w-5', active ? 'text-blue-600 scale-110' : 'text-slate-400')} />
+                  <span className="text-[11px]">{label}</span>
+                </a>
               </Link>
             );
           })}
